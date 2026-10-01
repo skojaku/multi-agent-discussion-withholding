@@ -8,7 +8,7 @@
 # ALWAYS run with `--rerun-triggers mtime`: under the default triggers a change
 # to a script or a param deletes a finished transcript and re-buys it. A partial
 # transcript resumes on (task_id, agent, round, branch) when the runner is
-# called again on the same file; see README, Common problems, for how to
+# called again on the same file; see README, Rerunning the LLM experiments, for how to
 # do that without Snakemake deleting it.
 #
 # Endpoints (the `endpoint` field of an entry):

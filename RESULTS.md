@@ -3,7 +3,7 @@
 Every figure and quantitative claim of the paper, the script, rule and inputs
 that produce it, and what the repository does not reproduce. Everything needed
 is in this repository and the data archive. Rules
-are in `workflow/rules/`; `data/` is the staged archive (README, *Data*);
+are in `workflow/rules/`; `data/` is the data archive (README, *Where things are*);
 `results/` is what the workflow writes. Every run is on the separate-probe
 protocol (the private answer asked in its own call, Appendix B.2).
 
@@ -47,14 +47,4 @@ bootstrap interval, variance shares, effects, per-model shifts).
 | Statement | Where | Why |
 |---|---|---|
 | "a task-level cluster bootstrap gives intervals approximately 1.5 times wider" | B.2 | Computed in a separate estimator-validation experiment, not from the paper's transcripts. |
-| A.2: the closed form agrees with the numerical solution to four decimals; the transition width scales as N^−1/2 | A.2 | Theory checks outside the requested scope. |
-
-## Verification
-
-`uv run snakemake --rerun-triggers mtime -c4 figures` from a fresh clone
-regenerates every figure and evaluates every claim in `config/paper_numbers.yaml`
-(all hold; `results/numbers.ok` is written only then). `estimates` recomputes
-every released estimate from the transcripts; `results/verification/estimates.csv`
-compares them cell by cell with the released ones, and `theory verify_theory`
-does the same for the theory tables. Every estimator is seeded, so reruns give
-identical files.
+| A.2: the closed form agrees with the numerical solution to four decimals; the transition width scales as N^−1/2 | A.2 | Theory checks that are not part of the workflow. |

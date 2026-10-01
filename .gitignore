@@ -1,4 +1,4 @@
-# Data and outputs are never committed (see README: data hosting).
+# Data and outputs are never committed (see README, Where things are).
 /data/
 /results/
 config/config.yaml

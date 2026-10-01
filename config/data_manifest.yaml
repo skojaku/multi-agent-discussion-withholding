@@ -3,7 +3,7 @@
 # Excluded: medeinst/base5_qwen. 179 of its 5,400 discussion rows (3.3 %) carry
 # no public answer -- 155 replies are empty and 24 stop before the PUBLIC line --
 # so no parser can recover them, and the run fails the 2 % transcript audit
-# (README, "Excluded run").
+# (README, "Where things are").
 #
 # The transcripts of every run the paper's figures and claims are computed
 # from, all with the private answer elicited in its own call (the "separate"

@@ -9,7 +9,7 @@ answer at all.
     t = cbrm.load_events("data/run/events.jsonl")
     print(cbrm.diagnose(t, condition="C4"))
 
-The input schema is described in the repository README (Data).
+The input schema is described in the repository README (Where things are).
 """
 
 from .bayes import posterior, summary as posterior_summary

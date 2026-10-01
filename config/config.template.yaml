@@ -4,7 +4,7 @@
 # here. No script carries its own list of models, colours or counts: add a model
 # by adding an entry under `models` (and its runs under `runs`), nothing else.
 
-data_dir: "data"          # the data archive (gitignored); see README, Data
+data_dir: "data"          # the data archive (gitignored); see README, Where things are
 results_dir: "results"    # everything the workflow writes (gitignored)
 
 # Where the figures and numbers read their estimates from.
@@ -188,5 +188,5 @@ audit: true
 # Runs that fail the audit (> 2 % unparsed public answers) but are used anyway
 # pass the gate only when listed here, and are then named in the audit report.
 # Empty: the one run that failed (medeinst/base5_qwen) is excluded from the
-# data instead (config/data_manifest.yaml, README "Excluded run").
+# data instead (config/data_manifest.yaml, README, Where things are).
 audit_known_failures: []
