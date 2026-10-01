@@ -1,0 +1,192 @@
+# Copy to config/config.yaml to override; the workflow falls back to this file.
+#
+# Everything the scripts need to know about models, benchmarks and runs lives
+# here. No script carries its own list of models, colours or counts: add a model
+# by adding an entry under `models` (and its runs under `runs`), nothing else.
+
+data_dir: "data"          # the data archive (gitignored); see README, Data
+results_dir: "results"    # everything the workflow writes (gitignored)
+
+# Where the figures and numbers read their estimates from.
+#   released    data/estimates/...  (the estimates shipped with the paper)
+#   recomputed  results/estimates/...  (written by the `estimates` entry point)
+estimates_source: "released"
+
+# ---------------------------------------------------------------- protocol
+# The instruction arms every main-text model was run at, and the full ladder
+# some arms carry (Appendix B.1).
+# Raw keys as the transcripts carry them, and the names the paper prints.
+arms: ["A0", "C0", "C4"]
+arm_names: {A0: "A", C0: "B", C4: "C"}   # A: answer honestly, B: no instruction, C: cohesion
+reference_arm: "C0"         # instruction effects are relative to this arm
+conditions: ["A0", "C0", "C1", "C2", "C3", "C4"]
+probe: "separate"           # the elicitation the main text reports (B.2)
+c_star_std: 0.5454545454545454   # 6/11: standard setting gamma = 0.6, a = 0.5
+
+# Runs whose last path component ends in one of these suffixes are a model's
+# second reasoning setting (the same model id). Fig. 2 e-g, Fig. 3 a-c and B3
+# draw the reasoning-off runs (`reasoning_off_suffix`) beside the main runs;
+# the decomposition pools them into their model (below); `_highthink` runs are
+# in no figure and no fit.
+ablation_suffix: ["_nothink", "_highthink"]
+reasoning_off_suffix: "_nothink"
+# The decomposition (Fig. 3 d, B.4) pools each model's reasoning-off runs with
+# its main runs, as B.4 states ("This fit also pools the reasoning-off runs of
+# five LLMs"). false leaves them out of the fit (not what the paper reports).
+decomposition_pool_reasoning_off: true
+
+# ------------------------------------------------------------------ models
+# One entry per main-text model, in display order (non-reasoning first).
+#   name        the id the transcripts carry, after the provider prefix
+#   api_id      the `model` field in the transcripts / sweep.csv
+#   short       label used in figures
+#   reasoning   whether the main arm reasons before answering (as run)
+#   marker/dash matplotlib marker and dash pattern ([on, off] or null = solid)
+#   hp_run      the hidden-profile run directory of the main arm (F2, F3, B3, B4)
+#   decomposition  enters the cross-benchmark decomposition (needs every benchmark)
+#   ablation    optional second reasoning arm drawn by B3
+#               {run, effort_main, effort_ablation, kind: switch|effort}
+models:
+  - name: "gpt-4o-mini"
+    api_id: "openai/gpt-4o-mini"
+    short: "4o-mini"
+    reasoning: false
+    marker: "o"
+    dash: null
+    hp_run: "hidden_profile"
+    decomposition: true
+  - name: "mixtral:8x22b-instruct"
+    api_id: "mixtral:8x22b-instruct"
+    short: "mixtral"
+    reasoning: false
+    marker: "s"
+    dash: [3, 1.4]
+    hp_run: "hp_models/mixtral_8x22b"
+    decomposition: true
+  - name: "glm-5.3-flash"
+    api_id: "z-ai/glm-5.3-flash"
+    short: "glm-flash"
+    reasoning: true
+    marker: "^"
+    dash: null
+    hp_run: "hp_models/glm53_flash"
+    decomposition: true
+    ablation: {run: "hp_models/glm53_flash_highthink", effort_main: "low",
+               effort_ablation: "high", kind: "effort"}
+  - name: "Qwen3.8-27B-8bit-dflash2"
+    api_id: "Qwen3.8-27B-8bit-dflash2"
+    short: "qwen3.8"
+    reasoning: true
+    marker: "P"
+    dash: [3, 1.4]
+    hp_run: "hp_models/qwen38_27b_dflash2"
+    decomposition: false      # reaches two of the four benchmarks
+    ablation: {run: "hp_models/qwen38_nothink", effort_main: "default",
+               effort_ablation: "off", kind: "switch"}
+  - name: "gemini-3.8-flash"
+    api_id: "google/gemini-3.8-flash"
+    short: "gemini"
+    reasoning: true
+    marker: "*"
+    dash: [2, 1.2]
+    hp_run: "hp_models/gemini38"
+    decomposition: true
+    ablation: {run: "hp_models/gemini38_nothink", effort_main: "default",
+               effort_ablation: "low", kind: "switch"}
+  - name: "gpt-5.6-luna"
+    api_id: "openai/gpt-5.6-luna"
+    short: "luna"
+    reasoning: true
+    marker: "v"
+    dash: [1.2, 1.2]
+    hp_run: "hp_models/luna"
+    decomposition: true
+    ablation: {run: "hp_models/luna_nothink", effort_main: "default",
+               effort_ablation: "off", kind: "switch"}
+  # Three models that honour reasoning={"enabled": false}, added so the
+  # reasoning on/off contrast (B3) covers more than two models.
+  - name: "nemotron-3-super-120b-a12b"
+    api_id: "nvidia/nemotron-3-super-120b-a12b"
+    short: "nemotron"
+    reasoning: true
+    marker: "p"
+    dash: [5, 1.5]
+    hp_run: "hp_models/nemotron"
+    decomposition: true
+    ablation: {run: "hp_models/nemotron_nothink", effort_main: "default",
+               effort_ablation: "off", kind: "switch"}
+  - name: "ling-3.0-flash"
+    api_id: "inclusionai/ling-3.0-flash"
+    short: "ling"
+    reasoning: true
+    marker: "<"
+    dash: [4, 1.2]
+    hp_run: "hp_models/ling"
+    decomposition: true
+    ablation: {run: "hp_models/ling_nothink", effort_main: "default",
+               effort_ablation: "off", kind: "switch"}
+  - name: "seed-2.0-mini"
+    api_id: "bytedance-seed/seed-2.0-mini"
+    short: "seed"
+    reasoning: true
+    marker: "h"
+    dash: [1.2, 1.2, 4, 1.2]
+    hp_run: "hp_models/seed"
+    decomposition: true
+    ablation: {run: "hp_models/seed_nothink", effort_main: "default",
+               effort_ablation: "off", kind: "switch"}
+
+# -------------------------------------------------------------- benchmarks
+# `prefixes` maps the first path component of a run directory to a benchmark.
+benchmarks:
+  hidden_profile:
+    short: "HP"
+    long: "hidden profile"
+    figure_name: "hidden profile"
+    decomposition_prefixes: ["hidden_profile", "hp_models", "hp_repeats"]
+    figure_prefixes: ["hidden_profile", "hp_interventions", "hp_models",
+                      "hp_repeats"]
+    items: "hidden_profile.jsonl"
+  hiddenbench:
+    short: "HB"
+    long: "HiddenBench"
+    figure_name: "HiddenBench"
+    decomposition_prefixes: ["hiddenbench"]
+    figure_prefixes: ["hiddenbench"]
+    items: "hiddenbench.jsonl"
+  musique:
+    short: "MuS"
+    long: "MuSiQue"
+    figure_name: "MuSiQue"
+    decomposition_prefixes: ["musique"]
+    figure_prefixes: ["musique"]
+    items: null
+  medeinst:
+    short: "MedE"
+    long: "MedEInst"
+    figure_name: "MedEInst"
+    decomposition_prefixes: ["medeinst"]
+    figure_prefixes: ["medeinst"]
+    items: null
+# F3 (a-c): one panel per benchmark, in this order.
+f3_panels: ["hiddenbench", "musique", "medeinst"]
+# ... and the two instruction arms it draws (A0 filled blue, C4 open).
+f3_arms: ["A0", "C4"]
+# The benchmark the single (non-crossed) decomposition is fit on.
+decomposition_fit_family: "hidden_profile"
+decomposition_min_contra: 30
+decomposition_seed: 0
+decomposition_chains: 4     # four chains of 210,000 sweeps, pooled (B.4)
+sweep_n_boot: 600
+
+# ------------------------------------------------------------------ theory
+abm_phase_N: [100, 400]     # group sizes of the simulated phase plane (F1 draws 100)
+abm_phase_chunks: 8         # parallel chunks per N (the table is identical)
+
+# Run the transcript audit before anything quotes a number from the transcripts.
+audit: true
+# Runs that fail the audit (> 2 % unparsed public answers) but are used anyway
+# pass the gate only when listed here, and are then named in the audit report.
+# Empty: the one run that failed (medeinst/base5_qwen) is excluded from the
+# data instead (config/data_manifest.yaml, README "Excluded run").
+audit_known_failures: []

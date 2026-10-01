@@ -1,0 +1,12 @@
+# Data and outputs are never committed (see README: data hosting).
+/data/
+/results/
+config/config.yaml
+config/pi_config/
+.venv/
+__pycache__/
+*.pyc
+.snakemake/
+.pytest_cache/
+*.orig
+*.rej

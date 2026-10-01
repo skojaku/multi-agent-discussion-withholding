@@ -1,0 +1,101 @@
+"""Reproduction workflow for "Multiagent debate helps only below a critical withholding rate".
+
+Run from the repository root, ALWAYS with mtime rerun triggers:
+
+    uv run snakemake --rerun-triggers mtime -c4 figures       # (a) estimates -> figures + numbers
+    uv run snakemake --rerun-triggers mtime -c4 estimates     # (b) transcripts -> estimates (+ verification)
+    uv run snakemake --rerun-triggers mtime -c1 -n -p transcripts   # (c) dry run; drop -n to spend money
+
+`--rerun-triggers mtime` matters: with Snakemake's default triggers a change to
+code or params marks finished outputs as stale, and for rule `debate` that means
+deleting a transcript that cost money and re-buying it.
+
+The default target `all` is (a): the figure PDFs and results/numbers.json.
+"""
+import os
+from os.path import join as j
+
+import yaml
+
+include: "utils.smk"
+
+CONFIG_FILE = ("config/config.yaml" if os.path.exists("config/config.yaml")
+               else "config/config.template.yaml")
+configfile: CONFIG_FILE
+
+DATA_DIR = config["data_dir"]
+RES_DIR = config["results_dir"]
+SCRIPTS = "workflow/scripts"
+
+# pi (the coding-agent CLI) is not used by the debate harness in this
+# repository, which calls chat-completions endpoints directly. The variable is
+# set here, at the Snakemake level, so that any pi-based step added later reads
+# this experiment's own models.json (config/pi_config/models.json, gitignored,
+# with sampling parameters as `samplingParams` on the model entries) and never
+# the shared ~/.pi/agent/models.json.
+os.environ["PI_CODING_AGENT_DIR"] = os.path.abspath("config/pi_config")
+
+# ------------------------------------------------------------------ inputs
+MANIFEST = yaml.safe_load(open("config/data_manifest.yaml"))
+MAIN_RUNS = list(MANIFEST["transcripts"])
+
+TRANSCRIPTS = j(DATA_DIR, "transcripts")
+ITEMS = j(DATA_DIR, "items")
+EVENTS = j(TRANSCRIPTS, "{run}", "events.jsonl")
+
+# Released estimates (inputs, staged) and recomputed ones (outputs), same layout.
+EST_RELEASED = j(DATA_DIR, "estimates")
+EST_RECOMPUTED = j(RES_DIR, "estimates")
+EST = EST_RELEASED if config["estimates_source"] == "released" else EST_RECOMPUTED
+
+MODELS = config["models"]
+HP_RUNS = [m["hp_run"] for m in MODELS]
+
+
+def items_for(run):
+    """The items file the evidence-level estimators need, or None."""
+    prefix = run.split("/")[0]
+    for b in config["benchmarks"].values():
+        if prefix in b["decomposition_prefixes"] + b["figure_prefixes"]:
+            return j(ITEMS, b["items"]) if b.get("items") else None
+    return None
+
+
+# The figure context: the JSON every figure script reads its paths and model
+# table from (figstyle.py). One for the figures (estimates per
+# `estimates_source`) and one for the recomputed tree.
+FIGURE_CONTEXT = j(RES_DIR, "figures", "context.json")
+ESTIMATES_CONTEXT = j(RES_DIR, "estimates", "context.json")
+# The part of the config the decomposition reads (models, benchmarks,
+# instructions, fit settings). Written below only when its content changes, so
+# editing an unrelated key (e.g. estimates_source) does not re-run the fits.
+DECOMP_CONFIG = j(RES_DIR, "estimates", "decomposition_config.yaml")
+
+
+def write_if_changed(path, text):
+    """Write ``text`` to ``path`` unless it already holds exactly that, so the
+    file's mtime -- which is what reruns key on -- moves only on a change."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    if not os.path.exists(path) or open(path).read() != text:
+        with open(path, "w") as fh:
+            fh.write(text)
+NUMBERS_JSON = j(RES_DIR, "numbers.json")
+NUMBERS_CSV = j(RES_DIR, "numbers.csv")
+
+
+# ------------------------------------------------------------------ rules
+include: "rules/audit.smk"
+include: "rules/theory.smk"
+include: "rules/estimates.smk"
+include: "rules/figures.smk"
+include: "rules/numbers.smk"
+include: "rules/transcripts.smk"
+
+
+rule all:
+    input:
+        rules.figures.input,
+
+
+wildcard_constraints:
+    run="[A-Za-z0-9_./-]+",

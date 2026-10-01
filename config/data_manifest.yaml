@@ -1,0 +1,97 @@
+# What the data archive holds under data/, and nothing else.
+#
+# Excluded: medeinst/base5_qwen. 179 of its 5,400 discussion rows (3.3 %) carry
+# no public answer -- 155 replies are empty and 24 stop before the PUBLIC line --
+# so no parser can recover them, and the run fails the 2 % transcript audit
+# (README, "Excluded run").
+#
+# The transcripts of every run the paper's figures and claims are computed
+# from, all with the private answer elicited in its own call (the "separate"
+# probe of Appendix B.2).
+
+transcripts:
+  # hidden profile, main arms (F2, B2, decomposition)
+  - hidden_profile
+  - hp_models/mixtral_8x22b
+  - hp_models/glm53_flash
+  - hp_models/qwen38_27b_dflash2
+  - hp_models/gemini38
+  - hp_models/luna
+  - hp_models/nemotron
+  - hp_models/ling
+  - hp_models/seed
+  # hidden profile, reasoning ablations (B3 only)
+  - hp_models/glm53_flash_highthink
+  - hp_models/qwen38_nothink
+  - hp_models/gemini38_nothink
+  - hp_models/luna_nothink
+  - hp_models/nemotron_nothink
+  - hp_models/ling_nothink
+  - hp_models/seed_nothink
+  # hidden profile, replicate runs (decomposition cells, F2)
+  - hp_repeats/baseline_4o/rep2
+  - hp_repeats/baseline_4o/rep3
+  - hp_repeats/baseline_luna/rep2
+  - hp_repeats/baseline_luna/rep3
+  # HiddenBench
+  - hiddenbench/baseline_4o
+  - hiddenbench/baseline_4o_rep2
+  - hiddenbench/baseline_4o_rep3
+  - hiddenbench/baseline_gemini
+  - hiddenbench/baseline_glm
+  - hiddenbench/baseline_luna
+  - hiddenbench/baseline_mixtral
+  - hiddenbench/baseline_nemotron
+  - hiddenbench/baseline_ling
+  - hiddenbench/baseline_seed
+  # hiddenbench, reasoning-off arms (pooled into their model in the one-stage fit)
+  - hiddenbench/baseline_gemini_nothink
+  - hiddenbench/baseline_luna_nothink
+  - hiddenbench/baseline_nemotron_nothink
+  - hiddenbench/baseline_ling_nothink
+  - hiddenbench/baseline_seed_nothink
+  # MedEInst
+  - medeinst/baseline_4o
+  - medeinst/base5_4o
+  - medeinst/base5_gemini
+  - medeinst/base5_glm
+  - medeinst/base5_luna
+  - medeinst/base5_mixtral
+  - medeinst/base5_nemotron
+  - medeinst/base5_ling
+  - medeinst/base5_seed
+  # medeinst, reasoning-off arms (pooled into their model in the one-stage fit)
+  - medeinst/base5_gemini_nothink
+  - medeinst/base5_luna_nothink
+  - medeinst/base5_nemotron_nothink
+  - medeinst/base5_ling_nothink
+  - medeinst/base5_seed_nothink
+  - medeinst/m1_luna
+  - medeinst/m3_luna
+  - medeinst/menu_base_luna
+  # MuSiQue
+  - musique/base_4o
+  - musique/base_gemini
+  - musique/base_glm
+  - musique/base_luna
+  - musique/base_mixtral
+  - musique/base_nemotron
+  - musique/base_ling
+  - musique/base_seed
+  # musique, reasoning-off arms (pooled into their model in the one-stage fit)
+  - musique/base_gemini_nothink
+  - musique/base_luna_nothink
+  - musique/base_nemotron_nothink
+  - musique/base_ling_nothink
+  - musique/base_seed_nothink
+
+# Task files (data/items/). Built from public benchmarks by the harness makers.
+items:
+  - hidden_profile.jsonl
+  - hiddenbench.jsonl
+  - medeinst.jsonl
+  - medeinst5.jsonl
+  - medeinst_menu.jsonl
+  - me_m1.jsonl
+  - me_m3.jsonl
+  - musique.jsonl

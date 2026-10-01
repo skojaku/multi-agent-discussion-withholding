@@ -1,0 +1,162 @@
+# Every quantitative claim in the submitted paper
+# that this repository reproduces, as a check that is either true or
+# false of the data. workflow/scripts/numbers/quote_numbers.py evaluates each
+# `key` against the estimates and writes results/numbers.json with the value it
+# computed and the source it read.
+#
+# kind: bool         the claim holds (computed value true)
+#       upper_bound  the computed value is at most `paper`
+#       value        the computed value, rounded half-up to `digits`, equals `paper`
+#
+# `params` carries what a claim names (a model, an arm, a benchmark), so the
+# code computing it holds no model names of its own. Arms are the printed
+# names A, B, C unless a parameter says it is a raw key.
+
+numbers:
+  # ------------------------------------------------ 4.1 hidden profile (Fig. 2)
+  - key: withholding_rises_with_conformity
+    where: "4.1 (Fig. 2 b)"
+    text: "As conformity instructions strengthen, the withholding rate c-hat rises (mean over models, A < B < C)"
+    kind: bool
+    paper: true
+    params: {order: ["A", "B", "C"]}
+  - key: reasoning_models_above_threshold
+    where: "4.1"
+    text: "Reasoning models remain above the threshold for all instructions (c-hat > c* at every arm)"
+    kind: bool
+    paper: true
+  - key: gain_falls_with_margin_hidden_profile
+    where: "4.1 (Fig. 2 d)"
+    text: "The mathematical model predicts that the gain from discussion falls as the margin c-hat - c* grows, and the settings follow this prediction (Spearman rho < 0 over all settings, reasoning on and off)"
+    kind: bool
+    paper: true
+  - key: reasoning_models_withhold_less_internalize_more
+    where: "4.1"
+    text: "Reasoning models ... despite lower withholding ... their high internalization rate lowers c* (mean over instructions: reasoning models below the others in c-hat, above in a-hat)"
+    kind: bool
+    paper: true
+  - key: instruction_c_at_high_withholding_end
+    where: "4.1 (Fig. 2 d)"
+    text: "Settings under instruction C concentrate at this high-withholding end (mean margin: C above A and B)"
+    kind: bool
+    paper: true
+    params: {high: "C", others: ["A", "B"]}
+  - key: gain_levels_off_at_high_margin
+    where: "6 (Discussion)"
+    text: "gains that shrink as c approaches c* and level off near zero well above c* (mean gain of the top third of margins within 0.05 of zero)"
+    kind: bool
+    paper: true
+    params: {tolerance: 0.05}
+  - key: reasoning_off_withholding_no_consistent_shift
+    where: "4.1 (Fig. B3 a)"
+    text: "Switching reasoning off in the same LLM produces no consistent shift in withholding (the on-off shift changes sign across models)"
+    kind: bool
+    paper: true
+  - key: reasoning_on_internalization_rises_or_stays
+    where: "4.1, Fig. B3 caption"
+    text: "... but lowers internalization; with reasoning on, internalization rises or stays (on - off >= -0.02 in every model)"
+    kind: bool
+    paper: true
+    params: {tolerance: 0.02}
+  - key: reasoning_on_lowers_correction_and_gain
+    where: "4.1 (Fig. 2 e-g), Fig. B3 caption"
+    text: "net correction and the gain from discussion are lower with reasoning on in all six models"
+    kind: bool
+    paper: true
+  - key: n_reasoning_switch_models
+    where: "Fig. 2 caption, Fig. B3 caption"
+    text: "The six models with a reasoning-off run"
+    paper: 6
+    digits: 0
+
+  # ------------------------------------------------ 4.2 other benchmarks (Fig. 3)
+  - key: gain_falls_with_margin_hiddenbench
+    where: "4.2 (Fig. 3 a)"
+    text: "In HiddenBench ... discussion gains decrease as the margin increases (Spearman rho < 0, 95% bootstrap interval below 0)"
+    kind: bool
+    paper: true
+    params: {benchmark: "hiddenbench"}
+  - key: gain_falls_with_margin_medeinst
+    where: "4.2 (Fig. 3 c)"
+    text: "In ... MedEInst, discussion gains decrease as the margin increases (Spearman rho < 0, 95% bootstrap interval below 0)"
+    kind: bool
+    paper: true
+    params: {benchmark: "medeinst"}
+  - key: musique_relation_unclear
+    where: "4.2 (Fig. 3 b)"
+    text: "On MuSiQue the relation is unclear (the 95% bootstrap interval of the Spearman rho covers zero)"
+    kind: bool
+    paper: true
+    params: {benchmark: "musique"}
+  - key: gains_large_hiddenbench_small_others
+    where: "4.2"
+    text: "Discussion gains are large on HiddenBench and small on MuSiQue and MedEInst (largest gain on each)"
+    kind: bool
+    paper: true
+    params: {large: "hiddenbench", small: ["musique", "medeinst"]}
+  - key: musique_floor_cells_are_mixtral
+    where: "Fig. 3 caption, B.1"
+    text: "Settings whose LLM solved no item before or after discussion (mixtral on MuSiQue) are not drawn"
+    kind: bool
+    paper: true
+    params: {benchmark: "musique", model: "mixtral:8x22b-instruct"}
+  - key: musique_cstar_always_zero
+    where: "4.2"
+    text: "on MuSiQue the net correction is always negative, so c* stays at zero"
+    kind: bool
+    paper: true
+    params: {benchmark: "musique"}
+  - key: benchmark_order_withholding
+    where: "4.2"
+    text: "withholding rates are lowest for HiddenBench, higher for MuSiQue, higher again on our hidden profile task, and highest for MedEInst (benchmark effects)"
+    kind: bool
+    paper: true
+    params: {order: ["hiddenbench", "musique", "hidden_profile", "medeinst"]}
+  - key: comparable_shares
+    where: "4.2 (Fig. 3 d)"
+    text: "the benchmark, the LLM, and the instruction move withholding by comparable amounts (their variance-share intervals overlap pairwise)"
+    kind: bool
+    paper: true
+    params: {components: ["task", "model", "instruction"]}
+  - key: instruction_direction
+    where: "4.2"
+    text: "instruction A lowers withholding and instruction C raises it, both relative to B (95% intervals exclude zero)"
+    kind: bool
+    paper: true
+    params: {negative: "A0", positive: "C4"}
+
+  # ------------------------------------------------ 4.2 evidence (Fig. 3 e,f)
+  - key: reasoning_models_share_own_side
+    where: "4.2 (Fig. 3 e)"
+    text: "Reasoning models tend to share the evidence that supports their own choices and to withhold the evidence that would help the team converge on the correct answer (own share > correct share)"
+    kind: bool
+    paper: true
+  - key: pooling_utilization_tradeoff
+    where: "4.2 (Fig. 3 f)"
+    text: "GPT-4o-mini achieves a higher evidence pooling rate but a lower utilization rate, while reasoning models show the opposite pattern (instruction A)"
+    kind: bool
+    paper: true
+    params: {model: "gpt-4o-mini", arm: "A"}
+
+  # ------------------------------------------------ B.4 decomposition
+  - key: decomposition_n_benchmarks
+    where: "B.4"
+    text: "The decomposition spans all four benchmarks"
+    paper: 4
+    digits: 0
+  - key: decomposition_n_reasoning_off_models
+    where: "B.4"
+    text: "This fit also pools the reasoning-off runs of five LLMs"
+    paper: 5
+    digits: 0
+  - key: decomposition_excludes
+    where: "B.4"
+    text: "qwen3.8 is not in the fit; it excludes the high-effort run of glm-5.3-flash and settings with fewer than 30 contradicted rows"
+    kind: bool
+    paper: true
+    params: {absent_model: "Qwen3.8-27B-8bit-dflash2", absent_suffix: "_highthink", min_contra: 30}
+  - key: decomposition_rhat_max
+    where: "B.4"
+    text: "the split R-hat is at most 1.03 for every effect (checked on the recomputed fit, from the sampler log)"
+    kind: upper_bound
+    paper: 1.03
